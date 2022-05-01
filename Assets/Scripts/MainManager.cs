@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
@@ -11,6 +12,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text NameText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,10 +20,22 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
+    private DataManager.TopPlayerData _topPlayerData;
     
     // Start is called before the first frame update
     void Start()
     {
+        _topPlayerData = DataManager.Instance.GetTop();
+        
+        if (_topPlayerData!=null)
+        {
+            NameText.text = "Best Score : " + _topPlayerData._score + ", Name : " + _topPlayerData._name;
+        }
+        else
+        {
+            NameText.text = "";
+        }
+        
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -57,7 +71,7 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(0);
             }
         }
     }
@@ -72,5 +86,11 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if (_topPlayerData==null || m_Points > _topPlayerData._score)
+        {
+            
+            DataManager.Instance.SetTop(m_Points, DataManager.Instance.GetName());
+        }
     }
 }
